@@ -21,11 +21,12 @@ const Navbar = () => {
       />
       <div className="items-center hidden gap-5 text-gray-500 md:flex">
         <div className="flex items-center gap-5">
-          {user && <>
-            <button>Become Educator</button>|
-          <Link to="/my-enrollments">My Enrollments</Link>
-          </>
-          }
+          {user && (
+            <>
+              <button>Become Educator</button>|
+              <Link to="/my-enrollments">My Enrollments</Link>
+            </>
+          )}
         </div>
         {user ? (
           <UserButton />
@@ -40,13 +41,21 @@ const Navbar = () => {
       </div>
       {/* for mobile screen */}
       <div className="flex items-center gap-2 text-gray-500 md:hidden sm:gap-5">
-        <div>
-          <button>Become Educator</button>|{" "}
-          <Link to="/my-enrollments">My Enrollments</Link>
+        <div className="flex items-center gap-1 sm:gap-2 max-sm:text-xs">
+          {user && (
+            <>
+              <button>Become Educator</button>|
+              <Link to="/my-enrollments">My Enrollments</Link>
+            </>
+          )}
         </div>
-        <button>
-          <img src={assets.user_icon} alt="" />
-        </button>
+        {user ? (
+          <UserButton />
+        ) : (
+          <button onClick={()=>openSignIn()}>
+            <img src={assets.user_icon} alt="" />
+          </button>
+        )}
       </div>
     </div>
   );
