@@ -1,6 +1,7 @@
 import humanizeDuration from "humanize-duration";
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import YouTube from "react-youtube";
 import { assets } from "../../assets/assets";
 import Footer from "../../components/student/Footer";
 import Loading from "../../components/student/Loading";
@@ -12,6 +13,7 @@ const CourseDetails = () => {
   const [courseData, setCourseData] = useState(null);
   const [openSection, setOpenSection] = useState({});
   const [isAlreadyEnrolled, setIsAlreadyEnrolled] = useState(false);
+  const [playerData, setPlayerData] = useState(null);
 
   const {
     allCourses,
@@ -19,7 +21,7 @@ const CourseDetails = () => {
     calculateChapterTime,
     calculateCourseDuration,
     calculateNumberOfLecture,
-    currency
+    currency,
   } = useContext(AppContext);
 
   const fetchCourseData = () => {
@@ -132,7 +134,16 @@ const CourseDetails = () => {
                             <p>{lecture.lectureTitle}</p>
                             <div className="flex gap-2">
                               {lecture.isPreviewFree && (
-                                <p className="text-blue-500 cursor-pointer">
+                                <p
+                                  onClick={() =>
+                                    setPlayerData({
+                                      videoId: lecture.lectureUrl
+                                        .split("/")
+                                        .pop(),
+                                    })
+                                  }
+                                  className="text-blue-500 cursor-pointer"
+                                >
                                   Preview
                                 </p>
                               )}
@@ -165,53 +176,83 @@ const CourseDetails = () => {
 
         {/* rightcol */}
         <div className="z-10 overflow-hidden bg-white rounded-t shadow-custom-card max-w-course-card md:rounded-none min-w-[300px] sm:min-w-[420px ]">
-          <img src={courseData.courseThumbnail} alt="" />
+          {playerData ? (
+            <YouTube
+              videoId={playerData.videoId}
+              opts={{
+                playerVrs: {
+                  autoplay: 1,
+                },
+              }}
+              iframeClassName="w-full aspect-video"
+            />
+          ) : (
+            <img src={courseData.courseThumbnail} alt="" />
+          )}
+
           <div className="p-5">
             <div className="flex items-center gap-2 ">
-              <img className="w-3.5" src={assets.time_left_clock_icon} alt="time left clock icon" />
-              <p className="text-red-500"><span className="font-medium">5 days</span> left at this price</p>
+              <img
+                className="w-3.5"
+                src={assets.time_left_clock_icon}
+                alt="time left clock icon"
+              />
+              <p className="text-red-500">
+                <span className="font-medium">5 days</span> left at this price
+              </p>
             </div>
             <div className="flex items-center gap-3 pt-2">
-              <p className="text-2xl font-semibold text-gray-800 md:text-4xl">{currency} {(courseData.coursePrice - courseData.discount * courseData.coursePrice/100).toFixed(2)}</p>
-              <p className="text-gray-500 line-through md:text-lg">{currency}{courseData.coursePrice }</p>
-              <p className="text-gray-500 md:text-lg">{courseData.discount}% off </p>
+              <p className="text-2xl font-semibold text-gray-800 md:text-4xl">
+                {currency}{" "}
+                {(
+                  courseData.coursePrice -
+                  (courseData.discount * courseData.coursePrice) / 100
+                ).toFixed(2)}
+              </p>
+              <p className="text-gray-500 line-through md:text-lg">
+                {currency}
+                {courseData.coursePrice}
+              </p>
+              <p className="text-gray-500 md:text-lg">
+                {courseData.discount}% off{" "}
+              </p>
             </div>
             <div className="flex items-center gap-4 pt-2 text-sm text-gray-500 md:text-default md:pt-4">
               <div className="flex items-center gap-1">
                 <img src={assets.star} alt="star icon" />
                 <p>{calculateRating(courseData)}</p>
               </div>
-            <div className="w-px h-4 bg-gray-500/40"></div>
-            <div className="flex items-center gap-1">
+              <div className="w-px h-4 bg-gray-500/40"></div>
+              <div className="flex items-center gap-1">
                 <img src={assets.time_clock_icon} alt="clock icon" />
-                <p>{calculateCourseDuration (courseData)}</p>
+                <p>{calculateCourseDuration(courseData)}</p>
               </div>
               <div className="w-px h-4 bg-gray-500/40"></div>
               <div className="flex items-center gap-1">
                 <img src={assets.lesson_icon} alt="lesson icon" />
-                <p>{calculateNumberOfLecture (courseData)} lessons </p>
+                <p>{calculateNumberOfLecture(courseData)} lessons </p>
               </div>
             </div>
             <button className="w-full py-3 mt-4 font-medium text-white bg-blue-600 rounded md:mt-6">
-              {isAlreadyEnrolled ? "Already Enrolled" : 'Enroll now'}</button>
-              
-              <div className="pt-6">
-                <p className="text-lg font-medium text-gray-800 md:text-xl">
-                  What's in the course?
-                </p>
-                <ul className="pt-2 ml-4 text-sm text-gray-500 list-disc md:text-default">
-                  <li>Lifetime access with free updates.</li>
-                  <li>Step-by-step, hands-on project guidence.</li>
-                  <li>Dowmloadable resources and source code.</li>
-                  <li>Quizes to test your knowledge.</li>
-                  <li>Certificate of completion.</li>
-                  
-                </ul>
-              </div>
+              {isAlreadyEnrolled ? "Already Enrolled" : "Enroll now"}
+            </button>
+
+            <div className="pt-6">
+              <p className="text-lg font-medium text-gray-800 md:text-xl">
+                What's in the course?
+              </p>
+              <ul className="pt-2 ml-4 text-sm text-gray-500 list-disc md:text-default">
+                <li>Lifetime access with free updates.</li>
+                <li>Step-by-step, hands-on project guidence.</li>
+                <li>Dowmloadable resources and source code.</li>
+                <li>Quizes to test your knowledge.</li>
+                <li>Certificate of completion.</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </>
   ) : (
     <Loading />
